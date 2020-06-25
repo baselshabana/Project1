@@ -58,12 +58,10 @@ void instDecExec(unsigned int instWord)
                 break;
                 case 7:cout << "\tAND\tx" << dec << rd << ", x" << rs1 << ", x" << rs2 << "\n";
                 break;
-            default: cout << "\tUnkown R Instruction \n";
-                break;
         }
     } else      // R Instructions
     if(opcode == 0x3){
-        I_imm = (instWord >> 20) & 0x00000FFF;        //rs2=immediate value
+        I_imm = (instWord >> 20) & 0x00000FFF;
         switch (funct3) {
             case 0:cout << "\tLB\tx" << dec << rd << "," << I_imm << "(x" << rs1 << ")\n";
                 break;
@@ -74,8 +72,6 @@ void instDecExec(unsigned int instWord)
             case 4:cout << "\tLBU\tx" << dec << rd << "," << I_imm << "(x" << rs1 << ")\n";
                 break;
             case 5:cout << "\tLHU\tx" << dec << rd << "," << I_imm << "(x" << rs1 << ")\n";
-                break;
-            default:cout << "\tUnkown I Instruction \n";
                 break;
         }
     } else      // I Instructions
@@ -98,27 +94,25 @@ void instDecExec(unsigned int instWord)
             break;
         case 7: cout<< "\tANDI\tx" << dec << rd << ", x" << rs1 << ", " << I_imm << "\n";
             break;
-        default: cout << "\tUnkown I Instruction \n";
-            break;
     }
-} else      // I instructions
+} else      // I instructions***
     if(opcode == 0x37){
         U_imm = (instWord >> 12) & 0x000FFFFF;
-        cout << "\tLUI\tx" << dec << rd << ", 0x" << hex << U_imm << "\n";
+        cout << "\tLUI\tx" << dec << rd << ", 0x"<<hex<< U_imm << "\n";
         
     } else      // LUI instruction
     if(opcode == 0x17){
         U_imm = (instWord >> 12) & 0x000FFFFF;
-        cout << "\tAUIPC\tx" << dec << rd << ", " << U_imm << "\n";
-        } else       // AUIPC instruction//
+        cout << "\tAUIPC\tx" << dec << rd << ", 0x" <<hex<< U_imm << "\n";
+        } else       // AUIPC instruction
     if(opcode == 0x6F){
         J_imm = (instWord >> 31) & 0x00000001;
-        J_imm= (J_imm << 8) | ((instWord >> 12)& 0x000000FF);
-        J_imm= (J_imm << 1) | ((instWord >> 20)& 0x00000001);
-        J_imm= (J_imm << 10) | ((instWord >> 21)& 0x000003FF);
+        J_imm = (J_imm << 8) | ((instWord >> 12)& 0x000000FF);
+        J_imm = (J_imm << 1) | ((instWord >> 20)& 0x00000001);
+        J_imm = (J_imm << 10) | ((instWord >> 21)& 0x000003FF);
         
         cout << "\tJAL\tx" << dec << rd << ", 0x" << hex << J_imm << "\n";
-            } else      // JAL instruction**
+            } else      // JAL instruction***
     if(opcode == 0x67){
         J_imm = (instWord >> 20) & 0x00000FFF;
         cout << "\tJALR\tx" << dec << rd << ", x" << rs1 << ", " << J_imm << "\n";
@@ -156,8 +150,8 @@ void instDecExec(unsigned int instWord)
             case 7: cout << dec << "\tBGEU\tx" << rs1 << ", x" << rs2 << ", " << hex<< B_imm << "\n";
             break;
     }
-    } else      // B instructions**
-    if(opcode == 0x73){             // Extra Instructions
+    } else      // B instructions***
+    if(opcode == 0x73){
         unsigned int csr = (instWord >> 20) & 0x00000FFF;
         unsigned int Z_imm = (instWord >> 15) & 0x0000001F;
         switch(funct3)
@@ -182,7 +176,7 @@ void instDecExec(unsigned int instWord)
             break;
         }
     } else      //Extra instructions
-    if(opcode == 0xF){             // FENCE & FENCE.I Instructions
+    if(opcode == 0xF){
         unsigned int succ = (instWord >> 20) & 0x0000000F;
         unsigned int pred = (instWord >> 24) & 0x0000000F;
         switch(funct3){
@@ -191,7 +185,7 @@ void instDecExec(unsigned int instWord)
             case 1: cout << "\tFENCE.I\n";
                 break;
         }
-    } else
+    } else      // FENCE & FENCE.I Instructions
  
     {cout << "\tUnkown Instruction\n";}
     
