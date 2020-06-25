@@ -1,13 +1,3 @@
-/*
- This is just a skeleton. It DOES NOT implement all the requirements.
- It only recognizes the "ADD" and "SUB" instructions and prints
- "Unkown Instruction" for all other instructions!
- 
- References:
- (1) The risc-v ISA Manual ver. 2.1 @ https://riscv.org/specifications/
- (2) https://github.com/michaeljclark/riscv-meta/blob/master/meta/opcodes
- */
-
 #include <iostream>
 #include <fstream>
 #include "stdlib.h"
@@ -147,31 +137,64 @@ void instDecExec(unsigned int instWord)
         
     } else      // S instructions
     if(opcode == 0x63){
-            B_imm = (instWord >> 7) & 0x00000001;
-            B_imm |= (instWord >> 8) & 0x0000000f;
-            B_imm |= (instWord >> 25) & 0x0000003f;
-            B_imm |= (instWord >> 31) & 0x00000001;
-            
-            switch(funct3){
-                case 0: cout << dec << "\tBEQ\tx" << rs1 << ", x" << rs2 << ", " << B_imm << "\n";
-                    break;
-                case 1: cout << dec << "\tBNE\tx" << rs1 << ", x" << rs2 << ", " << B_imm << "\n";
-                    break;
-                case 4: cout << dec << "\tBLT\tx" << rs1 << ", x" << rs2 << ", " << B_imm << "\n";
-                    break;
-                case 5: cout<< dec  << "\tBGE\tx" << rs1 << ", x" << rs2 << ", " << B_imm << "\n";
-                    break;
-                case 6: cout << dec << "\tBLTU\tx" << rs1 << ", x" << rs2 << ", " << B_imm << "\n";
-                    break;
-                case 7: cout << dec << "\tBGEU\tx" << rs1 << ", x" << rs2 << ", " << B_imm << "\n";
-                    break;
+        B_imm= (instWord >> 31) & 0x00000001;
+        B_imm= (B_imm << 1) | ((instWord >> 7)& 0x00000001);
+        B_imm= (B_imm << 6) | ((instWord >> 25)& 0x00000003F);
+        B_imm= (B_imm << 4) | ((instWord >> 8)& 0x0000000F);
+ 
+        switch(funct3){
+            case 0: cout << dec << "\tBEQ\tx" << rs1 << ", x" << rs2 << ", "<< hex << B_imm << "\n";
+            break;
+            case 1: cout << dec << "\tBNE\tx" << rs1 << ", x" << rs2 << ", " << hex << B_imm << "\n";
+            break;
+            case 4: cout << dec << "\tBLT\tx" << rs1 << ", x" << rs2 << ", " << hex<< B_imm << "\n";
+            break;
+            case 5: cout<< dec  << "\tBGE\tx" << rs1 << ", x" << rs2 << ", " << hex<< B_imm << "\n";
+            break;
+            case 6: cout << dec << "\tBLTU\tx" << rs1 << ", x" << rs2 << ", " << hex<< B_imm << "\n";
+            break;
+            case 7: cout << dec << "\tBGEU\tx" << rs1 << ", x" << rs2 << ", " << hex<< B_imm << "\n";
+            break;
+    }
+    } else      // B instructions**
+    if(opcode == 0x73){             // Extra Instructions
+        unsigned int csr = (instWord >> 20) & 0x00000FFF;
+        unsigned int Z_imm = (instWord >> 15) & 0x0000001F;
+        switch(funct3)
+        {
+            case 0: if(csr == 0) {
+                cout << "\tECALL\n";
+                } else if (csr == 1){
+                cout << "\tEBREAK\n";
             }
-        } else      // B instructions**
-    if(opcode == 0x73){
-        cout << "\tecall\n";
-            } else      // ecall
-
+            break;
+            case 1: cout << dec << "\tCSRRW\tx" << rd << ", " << csr << ", x" << rs1 << "\n";
+            break;
+            case 2: cout << dec << "\tCSRRS\tx" << rd << ", " << csr << ", x" << rs1 << "\n";
+            break;
+            case 3: cout << dec << "\tCSRRC\tx" << rd << ", " << csr << ", x" << rs1 << "\n";
+            break;
+            case 5: cout << dec << "\tCSRRWI\tx" << rd << ", " << csr << ", " << Z_imm << "\n";
+            break;
+            case 6: cout << dec << "\tCSRRSI\tx" << rd << ", " << csr << ", " << Z_imm << "\n";
+            break;
+            case 7: cout << dec << "\tCSRRCI\tx" << rd << ", " << csr << ", " << Z_imm << "\n";
+            break;
+        }
+    } else      //Extra instructions
+    if(opcode == 0xF){             // FENCE & FENCE.I Instructions
+        unsigned int succ = (instWord >> 20) & 0x0000000F;
+        unsigned int pred = (instWord >> 24) & 0x0000000F;
+        switch(funct3){
+            case 0: cout << dec << "\tFENCE\tx" << pred << ", " << succ << "\n";
+                break;
+            case 1: cout << "\tFENCE.I\n";
+                break;
+        }
+    } else
+ 
     {cout << "\tUnkown Instruction\n";}
+    
 }
 
 
@@ -207,4 +230,3 @@ int main(int argc, char *argv[]){
         
     } else emitError("Cannot access input file\n");
 }
-
