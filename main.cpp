@@ -111,7 +111,7 @@ void instDecExec(unsigned int instWord)
         default: cout << "\tUnkown I Instruction \n";
             break;
     }
-} else      // I instructions//
+} else      // I instructions
     if(opcode == 0x37){
         U_imm = (instWord >> 12) & 0x000FFFFF;
         cout << "\tLUI\tx" << dec << rd << ", 0x" << hex << U_imm << "\n";
@@ -122,16 +122,20 @@ void instDecExec(unsigned int instWord)
         cout << "\tAUIPC\tx" << dec << rd << ", " << U_imm << "\n";
         } else       // AUIPC instruction//
     if(opcode == 0x6F){
-        J_imm = (instWord >> 12) & 0x000FFFFF;
+        J_imm = (instWord >> 31) & 0x00000001;
+        J_imm= (J_imm << 8) | ((instWord >> 12)& 0x000000FF);
+        J_imm= (J_imm << 1) | ((instWord >> 20)& 0x00000001);
+        J_imm= (J_imm << 10) | ((instWord >> 21)& 0x000003FF);
+        
         cout << "\tJAL\tx" << dec << rd << ", 0x" << hex << J_imm << "\n";
-            } else      // JAL instruction
+            } else      // JAL instruction**
     if(opcode == 0x67){
         J_imm = (instWord >> 20) & 0x00000FFF;
         cout << "\tJALR\tx" << dec << rd << ", x" << rs1 << ", " << J_imm << "\n";
-    } else      // JALR instruction//
+    } else      // JALR instruction
     if(opcode == 0x23){                // S Instructions
-        S_imm = (instWord >> 7) & 0x0000007F;
-        S_imm |= (instWord >> 25);
+        S_imm = (instWord >> 25) & 0x0000007F;
+        S_imm = (S_imm << 5) |( (instWord >> 7) & 0x0000001F ) ;
         switch(funct3){
                 case 0: cout << dec << "\tSB\tx" << rs2 << ", " << S_imm << "(x" << rs1 << ")\n";
                     break;
@@ -141,7 +145,7 @@ void instDecExec(unsigned int instWord)
                     break;
             }
         
-    } else      // S instructions//
+    } else      // S instructions
     if(opcode == 0x63){
             B_imm = (instWord >> 7) & 0x00000001;
             B_imm |= (instWord >> 8) & 0x0000000f;
@@ -162,7 +166,7 @@ void instDecExec(unsigned int instWord)
                 case 7: cout << dec << "\tBGEU\tx" << rs1 << ", x" << rs2 << ", " << B_imm << "\n";
                     break;
             }
-        } else      // B instructions
+        } else      // B instructions**
     if(opcode == 0x73){
         cout << "\tecall\n";
             } else      // ecall
